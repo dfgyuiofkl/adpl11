@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>السلة - متجر adpl</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; direction: rtl; }
+    #logo-section { text-align: center; padding: 10px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #logo-section img { max-width: 150px; }
+    #cart-page {
+      background: #fff; max-width: 600px; margin: 80px auto 20px; padding: 20px;
+      border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    #cart-items div {
+      display: flex; align-items: center; gap: 10px; margin: 10px 0;
+      border-bottom: 1px solid #ccc; padding-bottom: 10px;
+    }
+    #cart-items img { width: 50px; height: 50px; object-fit: cover; }
+    #cart-items button { background: none; border: none; font-size: 16px; cursor: pointer; }
+    .back-btn { background: #333; color: #fff; border: none; padding: 10px; cursor: pointer; margin-top: 10px; }
+    .back-btn:hover { background: #555; }
+    #place-order { background: #28a745; color: #fff; border: none; padding: 10px;
+      cursor: pointer; border-radius: 5px; margin-top: 10px; }
+    #place-order:hover { background: #1e7e34; }
+  </style>
+</head>
+<body>
+  <div id="logo-section">
+    <img src="https://i.imgur.com/QrWwcAB.jpeg" alt="شعار المتجر">
+  </div>
+  <div id="cart-page">
+    <h1>🛒 سلة المشتريات</h1>
+    <div id="cart-items"></div>
+    <h3>الإجمالي: <span id="total">0</span> ريال</h3>
+    <button id="place-order" onclick="placeOrder()">📦 إتمام الطلب</button><br>
+    <button class="back-btn" onclick="window.location.href='home.html'">🔙 العودة إلى المتجر</button>
+  </div>
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    function updateCart() {
+      let cartContainer = document.getElementById("cart-items");
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price;
+        cartContainer.innerHTML += `
+          <div>
+            <img src="${item.img}" alt="${item.name}">
+            <div style="flex:1; text-align:left;">
+              <span>${item.name}</span><br>
+              <span>${item.price} ريال</span>
+            </div>
+            <button onclick="removeFromCart(${index})">❌</button>
+          </div>
+        `;
+      });
+      document.getElementById("total").innerText = total;
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+    function placeOrder() {
+      if(cart.length === 0) { alert("سلتك فارغة! 🛒"); return; }
+      let total = document.getElementById("total").innerText;
+      let message = "🛒 طلب جديد!\\n";
+      cart.forEach(item => {
+        message += `📌 ${item.name} - ${item.price} ريال\\n`;
+      });
+      message += `\\n💰 الإجمالي: ${total} ريال\\n`;
+      let phoneNumber = "0500640335";
+      let whatsappUrl = `https://wa.me/966${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
+    }
+    updateCart();
+  </script>
+</body>
+</html>

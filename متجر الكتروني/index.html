@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصفحة الرئيسية - متجر adpl</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; direction: rtl; }
+    /* قسم الشعار */
+    #logo-section { text-align: center; padding: 10px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #logo-section img { max-width: 150px; }
+    /* نافبار الصفحة */
+    .navbar { display: flex; align-items: center; background: #fff; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .navbar-left, .navbar-center, .navbar-right { flex: 1; display: flex; align-items: center; }
+    .navbar-center { justify-content: center; }
+    .navbar-right { justify-content: flex-end; }
+    .navbar-left span, .navbar-right span { cursor: pointer; font-size: 20px; margin: 0 8px; }
+    .navbar-title { font-size: 22px; font-weight: bold; color: #007bff; }
+    .cart-icon { position: relative; }
+    .cart-count { position: absolute; top: -3px; right: -3px; background: red; color: #fff; font-size: 10px; border-radius: 50%; width: 14px; height: 14px; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+    #cart-total { font-size: 14px; color: #333; margin-left: 8px; }
+    .search-input { display: none; padding: 5px; border: 1px solid #ccc; border-radius: 5px; width: 150px; margin-right: 8px; }
+    /* السلايدر */
+    .slider { width: 90%; height: 150px; margin: 20px auto; border-radius: 10px; background-size: cover; background-position: center; }
+    /* المنتجات */
+    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 10px; }
+    .product { background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; cursor: pointer; transition: transform 0.3s ease; }
+    .product:hover { transform: scale(1.05); }
+    .product img { width: 100px; height: 100px; object-fit: cover; }
+    .order-btn { background: green; color: #fff; border: none; padding: 10px 15px; cursor: pointer; margin-top: 5px; border-radius: 5px; transition: background 0.3s ease; }
+    .order-btn:hover { background: #006400; }
+  </style>
+</head>
+<body>
+  <!-- الشعار -->
+  <div id="logo-section">
+    <img src="https://i.imgur.com/QrWwcAB.jpeg" alt="شعار المتجر">
+  </div>
+  <!-- نافبار الصفحة -->
+  <div class="navbar">
+    <div class="navbar-left">
+      <!-- أيقونة الحساب تُوجه إلى صفحة تسجيل الدخول -->
+      <span onclick="window.location.href='login.html'">👤</span>
+    </div>
+    <div class="navbar-center">
+      <span class="navbar-title">متجر adpl</span>
+    </div>
+    <div class="navbar-right">
+      <img src="https://e7.pngegg.com/pngimages/403/322/png-clipart-computer-icons-search-box-button-button-desktop-wallpaper-search-box.png" alt="بحث" style="width:24px; cursor:pointer;" onclick="toggleSearch()">
+      <input type="text" id="search-input" class="search-input" placeholder="بحث عن منتجات..." onkeyup="searchProducts(this.value)">
+      <span class="cart-icon" onclick="window.location.href='cart.html'">
+        <img src="https://png.pngtree.com/png-vector/20191026/ourmid/pngtree-shopping-basket-icon-png-image_1871519.jpg" alt="سلة" style="width:24px; vertical-align:middle; cursor:pointer;">
+        <span class="cart-count" id="cart-count">0</span>
+      </span>
+      <span id="cart-total">المجموع: 0 ريال</span>
+    </div>
+  </div>
+  <!-- السلايدر -->
+  <div id="slider" class="slider"></div>
+  <!-- المنتجات -->
+  <div id="products-container" class="products"></div>
+  
+  <script>
+    // مصفوفة المنتجات (يمكن تعديلها بسهولة)
+    let products = [
+      { name: "اشتراك سنة بلس للايفون", price: 59, img: "https://i.imgur.com/QrWwcAB.jpeg", description: "اشتراك مميز يمنحك خدمة بلس للآيفون لمدة سنة", rating: "4.5/5" },
+      { name: "اشتراك سنة بلس للايباد", price: 19, img: "https://i.imgur.com/QrWwcAB.jpeg", description: "اشتراك مميز للايباد مع خصومات حصرية", rating: "4.2/5" },
+      { name: "جهاز سماعات بلوتوث", price: 99, img: "https://i.imgur.com/7Q8b2E7.jpeg", description: "سماعات عالية الجودة مع صوت نقي", rating: "4.7/5" },
+      { name: "ساعة ذكية", price: 149, img: "https://i.imgur.com/2nCt3Sbl.jpeg", description: "ساعة ذكية متطورة مع تتبع اللياقة البدنية", rating: "4.6/5" },
+      { name: "كفر حماية", price: 29, img: "https://i.imgur.com/rsZs9RZl.jpeg", description: "كفر حماية عالي الجودة لهاتفك", rating: "4.0/5" }
+    ];
+    
+    function displayProducts(productList) {
+      let container = document.getElementById("products-container");
+      container.innerHTML = "";
+      productList.forEach((product, index) => {
+        container.innerHTML += `
+          <div class="product" onclick="goToProductDetails(${index})">
+            <img src="${product.img}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p>السعر: ${product.price} ريال</p>
+            <button class="order-btn" onclick="event.stopPropagation(); addToCart('${product.name}', ${product.price}, '${product.img}')">🛒 أضف للسلة</button>
+          </div>
+        `;
+      });
+    }
+    displayProducts(products);
+    
+    function searchProducts(query) {
+      let filtered = products.filter(product => product.name.toLowerCase().includes(query.toLowerCase()));
+      displayProducts(filtered);
+    }
+    
+    // السلايدر
+    let slides = [
+      'https://cdn.youcan.shop/stores/c60cdb42e65e6c2545ab3cc667e6fca4/others/7acJcQ8kLzBTUtrgVsY8xvxPjv32W7L4jvByqP6y.png',
+      'https://cdn.youcan.shop/stores/37a316e81ea7ca1bbe209a10b8e8694b/others/9flv1t9RDbC1PJyBRhizv7JWjK7L410qGqaDc4u5.png',
+      'https://cdn.youcan.shop/stores/926ef875f015ee2050a3751649310090/others/GvZ0YESR78jSXwbSGRyv0wARqEexMPYlSgqOcQIQ.png'
+    ];
+    let currentSlide = 0;
+    function showSlide(index) {
+      let slider = document.getElementById("slider");
+      slider.style.backgroundImage = `url('${slides[index]}')`;
+    }
+    showSlide(currentSlide);
+    setInterval(() => {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }, 4000);
+    
+    // وظائف السلة
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    function updateCartCount() {
+      document.getElementById("cart-count").innerText = cart.length;
+      updateCartTotal();
+    }
+    function updateCartTotal() {
+      let total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById("cart-total").innerText = "المجموع: " + total + " ريال";
+    }
+    function addToCart(name, price, img) {
+      cart.push({ name, price, img });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
+      alert("تم الإضافة إلى السلة بنجاح");
+    }
+    updateCartCount();
+    
+    // عند النقر على منتج يتم تخزين بياناته والانتقال إلى صفحة التفاصيل
+    function goToProductDetails(index) {
+      localStorage.setItem("selectedProduct", JSON.stringify(products[index]));
+      window.location.href = "product-details.html";
+    }
+    
+    // تبديل ظهور حقل البحث
+    function toggleSearch() {
+      let searchInput = document.getElementById("search-input");
+      searchInput.style.display = (searchInput.style.display === "block") ? "none" : "block";
+      if(searchInput.style.display === "block") { searchInput.focus(); }
+    }
+  </script>
+</body>
+</html>
